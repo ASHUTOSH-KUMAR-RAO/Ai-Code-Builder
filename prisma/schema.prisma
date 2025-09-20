@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+//! Aur maje ki Baat btau prisma hamesa decorator use krta hai ,pta hai kis liye kyuki isese hi ye define krta hai primary key and whatever jo bhi hum prisma ke andar use krt hai,jaise hamne yeha  per @ use kiya hai to isko hi hum decorator bolte
+
+
+
+
+
+//? Aur jaise hum  django ke andar apne db mein kuch changes krte hai uske migration ke liye command run krte hai same prisma mein bhi hum migration command run krte hai then ek generated folder create hota ha jiske andar migration changes hote hai,(aur ek maje ki baat btau jaab bhi hum 'npm prisma migrate dev', command run krte hai n to internally ('npx prisma generate',command run hota hai aur jaise hi, ye command run krte hai to bahut types create krta hai prisma ke andar to socho ek command se kitna magic hota hai 🤷‍♀️)) ,and prisma offcial docs https://www.prisma.io/docs/guides
+
+// todo => This creates two models: User and Post, with a one-to-many relationship between them.
+
+
+//* Databse Reset ke need humko sirf development level per hi padti hai production per nhi padti hai
+
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  posts Post[] // Prisma mein hum aise relation banate hai
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean @default(false)
+  authorId  Int
+  author    User    @relation(fields: [authorId], references: [id])
+}
