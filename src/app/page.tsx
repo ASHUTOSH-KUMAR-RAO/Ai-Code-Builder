@@ -1,10 +1,12 @@
-import { Button } from "@/components/ui/button";
-import React from "react";
+import { prisma } from "@/lib/db";
 
-const Page = () => {
+
+const Page = async() => {
+
+  const post = await prisma.post.findMany()
   return (
     <div>
-      <Button>Page</Button>
+      <h1>Hello Baby</h1>
     </div>
   );
 };
