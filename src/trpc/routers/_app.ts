@@ -1,10 +1,11 @@
-import { z } from "zod"; // 🔍 Zod library import kar rahe hain validation ke liye
+import { email, z } from "zod"; // 🔍 Zod library import kar rahe hain validation ke liye
 import { baseProcedure, createTRPCRouter } from "../init"; // 🚀 tRPC ke basic components import kar rahe hain
+import { inngest } from "@/inngest/client";
 
 // 🏗️ Main router create kar rahe hain jisme saare API endpoints honge
 export const appRouter = createTRPCRouter({
   // 👋 "hello" endpoint banaya hai - yeh public hai, koi bhi access kar sakta hai
-  hello: baseProcedure
+  invoke: baseProcedure
     // 🛡️ Input validation - jo data aayega woh object hona chahiye with text property
     .input(
       z.object({
@@ -12,12 +13,12 @@ export const appRouter = createTRPCRouter({
       })
     )
     // ⚙️ Query handler - actual logic yahan likhte hain (GET request jaisa)
-    .query((opts) => {
-      // 📦 opts mein input data milta hai, context bhi milta hai agar chahiye ho
-      return {
-        // 💬 Simple greeting return kar rahe hain with user ka text
-        greeting: `hello ${opts.input.text}`,
-      };
+    .mutation(async ({ input }) => {
+      // 📦 input mein input data milta hai, context bhi milta hai agar chahiye ho
+      await inngest.send({
+        name: "test/hello.world",
+        data: { email: input.text },
+      });
     }),
 
   // 📝 Yahan aur endpoints add kar sakte hain:
