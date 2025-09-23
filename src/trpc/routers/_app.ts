@@ -9,7 +9,7 @@ export const appRouter = createTRPCRouter({
     // 🛡️ Input validation - jo data aayega woh object hona chahiye with text property
     .input(
       z.object({
-        text: z.string(), // 📝 text field string hona chahiye, warna error throw karega
+        value: z.string(), // 📝 text field string hona chahiye, warna error throw karega
       })
     )
     // ⚙️ Query handler - actual logic yahan likhte hain (GET request jaisa)
@@ -17,7 +17,7 @@ export const appRouter = createTRPCRouter({
       // 📦 input mein input data milta hai, context bhi milta hai agar chahiye ho
       await inngest.send({
         name: "test/hello.world",
-        data: { email: input.text },
+        data: { value: input.value },
       });
     }),
 
