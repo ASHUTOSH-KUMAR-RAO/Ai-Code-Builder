@@ -1,10 +1,17 @@
-import { createAgent,gemini } from "@inngest/agent-kit";
+import { createAgent, gemini } from "@inngest/agent-kit";
 import { inngest } from "./client";
 
+import { Sandbox } from "@e2b/code-interpreter";
+import { getSandbox } from "./utils";
 export const helloWorld = inngest.createFunction(
   { id: "hello-world" },
   { event: "test/hello.world" },
   async ({ event, step }) => {
+    const sandboxId = await step.run("create-sandbox", async () => {
+      const sandbox = await Sandbox.create("innovate-nextjs-test-2");
+
+      return sandbox.sandboxId;
+    });
     try {
       const codeWriterAgent = createAgent({
         name: "Code writer",
@@ -23,7 +30,14 @@ export const helloWorld = inngest.createFunction(
         );
       });
 
-      console.log("Generated code:", output);
+      // Execute the generated code in the sandbox
+
+      const sandboxUrl = await step.run("get-sandbox-url", async () => {
+        const sandbox = await getSandbox(sandboxId);
+        const host =  sandbox.getHost(3000);
+        return `https://${host}`;
+      });
+      console.log("Generated code:", output,sandboxUrl);
 
       return {
         success: true,
