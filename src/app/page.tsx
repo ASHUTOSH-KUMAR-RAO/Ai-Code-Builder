@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -12,8 +12,10 @@ const Page = () => {
 
   const trpc = useTRPC();
 
-  const invoke = useMutation({
-    ...trpc.invoke.mutationOptions({}),
+  const {data:messages} = useQuery(trpc.messages.getMany.queryOptions());
+
+  const createMessage = useMutation({
+    ...trpc.messages.create.mutationOptions({}),
     onSuccess: (data) => {
       // Success toast
       toast.success("Background Job Completed! 🎉", {
@@ -30,7 +32,7 @@ const Page = () => {
         duration: 5000,
         action: {
           label: "Retry",
-          onClick: () => invoke.mutate({ value: value }),
+          onClick: () => createMessage.mutate({ value: value }),
         },
       });
     },
@@ -49,7 +51,7 @@ const Page = () => {
       description: `Working on: "${value}"`,
     });
 
-    invoke.mutate({ value: value });
+    createMessage.mutate({ value: value });
   };
 
   return (
@@ -59,15 +61,16 @@ const Page = () => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Enter text for background processing..."
-          disabled={invoke.isPending}
+          disabled={createMessage.isPending}
         />
         <Button
           onClick={handleInvoke}
           className="cursor-pointer"
-          disabled={invoke.isPending}
+          disabled={createMessage.isPending}
         >
-          {invoke.isPending ? "Processing..." : "Invoke Background Job"}
+          {createMessage.isPending ? "Processing..." : "Invoke Background Job"}
         </Button>
+        {JSON.stringify(messages, null, 2)}
       </div>
     </div>
   );

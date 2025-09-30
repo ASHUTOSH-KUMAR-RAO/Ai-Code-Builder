@@ -15,7 +15,7 @@ datasource db {
 }
 
 
-//! Aur maje ki Baat btau prisma hamesa decorator use krta hai ,pta hai kis liye kyuki isese hi ye define krta hai primary key and whatever jo bhi hum prisma ke andar use krt hai,jaise hamne yeha  per @ use kiya hai to isko hi hum decorator bolte
+//! Aur maje ki Baat btau prisma hamesa decorator use krta hai ,pta hai kis liye kyuki isese hi ye define krta hai primary key and whatever jo bhi hum prisma ke andar use krte hai,jaise hamne yeha  per @ use kiya hai to isko hi hum decorator bolte
 
 
 
@@ -28,19 +28,38 @@ datasource db {
 
 //* Databse Reset ke need humko sirf development level per hi padti hai production per nhi padti hai
 
-
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[] // Prisma mein hum aise relation banate hai
+enum MessageRole{
+  USER
+  ASSISTANT
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  authorId  Int
-  author    User    @relation(fields: [authorId], references: [id])
+enum MessageType{
+  RESULT
+  ERROR
+}
+
+// ! enum basically ek aisa type hota hai jisme hum kuch predefined values rkhte hai jise hum baar-baar use kr skte hai jaise ki yaha per humne MessageRole enum banaya hai jisme do values hai USER and ASSISTANT to ab hum is enum ko apne model ke andar use kr skte hai jaise ki niche Message model ke andar use kiya hai
+model Message {
+  id        String                                                 @id @default(uuid())
+  content   String
+  role      MessageRole
+  type      MessageType
+  createdAt DateTime                            @default(now())
+  updatedAt DateTime  @updatedAt  // jaise yeha per humne @updatedAt @updatedAt use kiya hai to ye field automatically update ho jayega jab bhi record update hoga , aur isko hi hum decorator bolte hai
+
+  fragments Fragment? //one to one relationship with Fragment model (optional) that means ek message ke saath ek hi fragment ho skta hai and fragment optional hai
+}
+
+
+model Fragment {
+  id String @id @default(uuid())
+  messageId String @unique
+  message Message @relation(fields: [messageId], references: [id],onDelete: Cascade) // cascade means ki jab message delete hoga to uske saath saath uske fragments bhi delete ho jayenge,cascade is a referential action that means when a referenced record is deleted, all associated records in the related table will also be automatically deleted
+
+  sandboxUrl String
+  title String
+  files Json
+
+  createdAt DateTime                @default(now())
+  updatedAt DateTime    @updatedAt
 }
