@@ -3,11 +3,19 @@ import {
   createNetwork,
   createTool,
   gemini,
+  Tool,
 } from "@inngest/agent-kit";
 import { inngest } from "./client";
 import { Sandbox } from "@e2b/code-interpreter";
 import { getSandbox, lastAssistantTextMessageContent } from "./utils";
 import { z } from "zod";
+import { prisma } from "@/lib/db";
+
+
+interface AgentState  {
+  summary?: string;
+  files?: Record<string, string>;
+}
 
 // Type compatibility fix - Force the Zod schema to be compatible
 const createCompatibleZodSchema = <T extends z.ZodRawShape>(
@@ -16,9 +24,9 @@ const createCompatibleZodSchema = <T extends z.ZodRawShape>(
   return schema as any; // Type assertion to bypass compatibility issues
 };
 
-export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
+export const codeAgent = inngest.createFunction(
+  { id: "code-agent" },
+  { event: "code-agent/run" },
   async ({ event, step }) => {
     const sandboxId = await step.run("create-sandbox", async () => {
       const sandbox = await Sandbox.create("innovate-nextjs-test-2");
@@ -26,7 +34,7 @@ export const helloWorld = inngest.createFunction(
     });
 
     try {
-      const codeWriterAgent = createAgent({
+      const codeWriterAgent = createAgent<AgentState>({
         name: "Code writer",
         system:
           "You are an expert TypeScript programmer. Given a set of asks, you think step-by-step to plan clean, " +
@@ -97,7 +105,7 @@ export const helloWorld = inngest.createFunction(
                   .min(1, "At least one file is required"),
               })
             ),
-            handler: async ({ files }, { step, network }) => {
+            handler: async ({ files }, { step, network }:Tool.Options<AgentState>) => {
               return await step?.run("create-or-update-files", async () => {
                 try {
                   const updatedFiles = network?.state?.data?.files || {};
@@ -193,7 +201,7 @@ export const helloWorld = inngest.createFunction(
         },
       });
 
-      const network = createNetwork({
+      const network = createNetwork<AgentState>({
         name: "coding-agent-network",
         agents: [codeWriterAgent],
         maxIter: 15,
@@ -214,6 +222,28 @@ export const helloWorld = inngest.createFunction(
       }
 
       const result = await network.run(event.data.value);
+
+      await step?.run("save-AgentResult", async () => {
+        const sandbox = await getSandbox(sandboxId);
+        return await prisma.message.create({
+          data:{
+            content:result.state.data.summary || "No summary generated",
+            role:"ASSISTANT",
+            type:"RESULT",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            fragments: {
+              create: {
+                sandboxUrl: sandbox.sandboxId,
+                files: result.state.data.files ?? {},
+                title: "Code Generation Result",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            },
+          },
+        });
+      })
 
       return {
         success: true,
