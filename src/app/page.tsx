@@ -3,37 +3,47 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 const Page = () => {
+  const router = useRouter();
   const [value, setValue] = useState("");
 
   const trpc = useTRPC();
 
-  const {data:messages} = useQuery(trpc.messages.getMany.queryOptions());
+  const createProject = useMutation({
+    ...trpc.projects.create.mutationOptions({}),
 
-  const createMessage = useMutation({
-    ...trpc.messages.create.mutationOptions({}),
     onSuccess: (data) => {
-      // Success toast
-      toast.success("Background Job Completed! 🎉", {
-        description: `Job processed successfully for: "${value}"`,
-        duration: 4000,
+      // Dismiss loading toast
+      toast.dismiss();
+
+      // Show success toast
+      toast.success("Job Completed! ✓", {
+        description: `Successfully processed: "${value}"`,
+        duration: 3000,
       });
-      // Clear input after success
+
+      // Reset input
       setValue("");
+
+      // Navigate after a brief delay to let user see the success message
+      setTimeout(() => {
+        router.push(`/projects/${data.id}`);
+      }, 500);
     },
+
     onError: (error) => {
+      // Dismiss loading toast before showing error
+      toast.dismiss();
+
       // Error toast
-      toast.error("Background Job Failed! ❌", {
+      toast.error(error.message || "Something went wrong!", {
         description: error.message || "Something went wrong with the job",
         duration: 5000,
-        action: {
-          label: "Retry",
-          onClick: () => createMessage.mutate({ value: value }),
-        },
       });
     },
   });
@@ -51,26 +61,31 @@ const Page = () => {
       description: `Working on: "${value}"`,
     });
 
-    createMessage.mutate({ value: value });
+    // Actually trigger the mutation
+    createProject.mutate({ value });
   };
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
-      <div className="space-y-4">
+    <div className="h-screen w-screen flex items-center justify-center">
+      <div className="max-w-7xl mx-auto p-4 flex flex-col items-center gap-y-4 justify-center">
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Enter text for background processing..."
-          disabled={createMessage.isPending}
+          disabled={createProject.isPending}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !createProject.isPending) {
+              handleInvoke();
+            }
+          }}
         />
         <Button
           onClick={handleInvoke}
           className="cursor-pointer"
-          disabled={createMessage.isPending}
+          disabled={createProject.isPending}
         >
-          {createMessage.isPending ? "Processing..." : "Invoke Background Job"}
+          {createProject.isPending ? "Processing..." : "Invoke Background Job"}
         </Button>
-        {JSON.stringify(messages, null, 2)}
       </div>
     </div>
   );
