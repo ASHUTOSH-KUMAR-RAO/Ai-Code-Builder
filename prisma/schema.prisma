@@ -39,6 +39,16 @@ enum MessageType{
 }
 
 // ! enum basically ek aisa type hota hai jisme hum kuch predefined values rkhte hai jise hum baar-baar use kr skte hai jaise ki yaha per humne MessageRole enum banaya hai jisme do values hai USER and ASSISTANT to ab hum is enum ko apne model ke andar use kr skte hai jaise ki niche Message model ke andar use kiya hai
+
+model Project{
+  id String @id @default(uuid())
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[] //one to many relationship with Message model that means ek project ke andar kai sare messages ho skte hai
+
+}
 model Message {
   id        String                                                 @id @default(uuid())
   content   String
@@ -48,6 +58,9 @@ model Message {
   updatedAt DateTime  @updatedAt  // jaise yeha per humne @updatedAt @updatedAt use kiya hai to ye field automatically update ho jayega jab bhi record update hoga , aur isko hi hum decorator bolte hai
 
   fragments Fragment? //one to one relationship with Fragment model (optional) that means ek message ke saath ek hi fragment ho skta hai and fragment optional hai
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id],onDelete: Cascade) // cascade means ki jab project delete hoga to uske saath saath uske messages bhi delete ho jayenge,cascade is a referential action that means when a referenced record is deleted, all associated records in the related table will also be automatically deleted
 }
 
 

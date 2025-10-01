@@ -11,8 +11,7 @@ import { getSandbox, lastAssistantTextMessageContent } from "./utils";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 
-
-interface AgentState  {
+interface AgentState {
   summary?: string;
   files?: Record<string, string>;
 }
@@ -105,7 +104,10 @@ export const codeAgent = inngest.createFunction(
                   .min(1, "At least one file is required"),
               })
             ),
-            handler: async ({ files }, { step, network }:Tool.Options<AgentState>) => {
+            handler: async (
+              { files },
+              { step, network }: Tool.Options<AgentState>
+            ) => {
               return await step?.run("create-or-update-files", async () => {
                 try {
                   const updatedFiles = network?.state?.data?.files || {};
@@ -226,10 +228,11 @@ export const codeAgent = inngest.createFunction(
       await step?.run("save-AgentResult", async () => {
         const sandbox = await getSandbox(sandboxId);
         return await prisma.message.create({
-          data:{
-            content:result.state.data.summary || "No summary generated",
-            role:"ASSISTANT",
-            type:"RESULT",
+          data: {
+            projectId: event.data.projectId,
+            content: result.state.data.summary || "No summary generated",
+            role: "ASSISTANT",
+            type: "RESULT",
             createdAt: new Date(),
             updatedAt: new Date(),
             fragments: {
@@ -243,7 +246,7 @@ export const codeAgent = inngest.createFunction(
             },
           },
         });
-      })
+      });
 
       return {
         success: true,
