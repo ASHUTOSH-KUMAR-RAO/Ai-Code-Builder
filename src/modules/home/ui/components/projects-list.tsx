@@ -8,19 +8,25 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { Loader2, FolderOpen } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 export const ProjectsList = () => {
   const trpc = useTRPC();
+  const { user } = useUser();
   const {
     data: projects,
     isLoading,
     error,
   } = useQuery(trpc.projects.getMany.queryOptions());
 
+  if (!user) return null;
+
   return (
     <div className="w-full bg-white dark:bg-sidebar rounded-xl p-6 sm:p-8 border shadow-sm">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">Saved Innovations</h2>
+        <h2 className="text-2xl font-semibold">
+          {user?.firstName}&apos;s Innovations
+        </h2>
         {projects && projects.length > 0 && (
           <span className="text-sm text-muted-foreground">
             {projects.length} {projects.length === 1 ? "project" : "projects"}

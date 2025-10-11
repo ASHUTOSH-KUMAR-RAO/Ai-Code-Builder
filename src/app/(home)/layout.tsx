@@ -2,12 +2,13 @@ interface Props {
   children: React.ReactNode;
 }
 
+import { Navbar } from "@/modules/home/ui/components/navbar";
 import React from "react";
 
 const Layout = ({ children }: Props) => {
   return (
     <main className="flex flex-col min-h-screen">
-      {/* Simple solid background */}
+      <Navbar/>
       <div className="fixed inset-0 -z-10 bg-white dark:bg-gray-950" />
 
       {/* Glassy dot pattern - grey tones */}
