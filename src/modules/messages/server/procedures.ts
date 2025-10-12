@@ -66,21 +66,45 @@ export const messageRouter = createTRPCRouter({
         } else {
           console.log("Project found:", project.id);
         }
+
+        // ✅ FIXED: Proper error handling for credits
         try {
           await consumeCredits();
         } catch (error) {
+          console.error("Credits consumption error:", error);
+
           if (error instanceof Error) {
+            // Check if it's a credits-related error based on message
+            const errorMessage = error.message.toLowerCase();
+
+            if (
+              errorMessage.includes("insufficient") ||
+              errorMessage.includes("out of credits") ||
+              errorMessage.includes("no credits") ||
+              error.name === "InsufficientCreditsError"
+            ) {
+              throw new TRPCError({
+                code: "TOO_MANY_REQUESTS",
+                message:
+                  "You have run out of credits. Please purchase more to continue.",
+              });
+            }
+
+            // Any other technical error
             throw new TRPCError({
               code: "BAD_REQUEST",
-              message: "Something Went Wrong",
-            });
-          } else {
-            throw new TRPCError({
-              code: "TOO_MANY_REQUESTS",
-              message: "You have run out of credits",
+              message:
+                error.message || "Failed to process credits. Please try again.",
             });
           }
+
+          // Unknown error type (not an Error instance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An unexpected error occurred. Please try again later.",
+          });
         }
+
         // Create user message with validated projectId
         const createdMessage = await prisma.message.create({
           data: {

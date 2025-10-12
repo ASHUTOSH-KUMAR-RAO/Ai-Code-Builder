@@ -14,11 +14,11 @@ export const projectsRouter = createTRPCRouter({
         id: z.string().min(1, { message: "Id is Required" }),
       })
     )
-    .query(async ({ input,ctx }) => {
+    .query(async ({ input, ctx }) => {
       const existingProjects = await prisma.project.findUnique({
         where: {
           id: input.id,
-          userId:ctx.auth.userId
+          userId: ctx.auth.userId,
         },
       });
 
@@ -31,6 +31,7 @@ export const projectsRouter = createTRPCRouter({
 
       return existingProjects;
     }),
+
   getMany: protectedProcedure.query(async ({ ctx }) => {
     const projects = await prisma.project.findMany({
       where: {
@@ -42,6 +43,7 @@ export const projectsRouter = createTRPCRouter({
     });
     return projects;
   }),
+
   create: protectedProcedure
     .input(
       z.object({
@@ -52,21 +54,45 @@ export const projectsRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // ✅ FIXED: Proper credits error handling
       try {
-                await consumeCredits();
-              } catch (error) {
-                if (error instanceof Error) {
-                  throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "Something Went Wrong",
-                  });
-                } else {
-                  throw new TRPCError({
-                    code: "TOO_MANY_REQUESTS",
-                    message: "You have run out of credits",
-                  });
-                }
-              }
+        await consumeCredits();
+      } catch (error) {
+        console.error("Credits consumption error:", error);
+
+        if (error instanceof Error) {
+          // Check if it's a credits-related error
+          const errorMessage = error.message.toLowerCase();
+
+          if (
+            errorMessage.includes("insufficient") ||
+            errorMessage.includes("out of credits") ||
+            errorMessage.includes("no credits") ||
+            error.name === "InsufficientCreditsError"
+          ) {
+            throw new TRPCError({
+              code: "TOO_MANY_REQUESTS",
+              message:
+                "You have run out of credits. Please purchase more to continue.",
+            });
+          }
+
+          // Any other technical error
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              error.message || "Failed to process credits. Please try again.",
+          });
+        }
+
+        // Unknown error type
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred. Please try again later.",
+        });
+      }
+
+      // Create project with initial message
       const createdProject = await prisma.project.create({
         data: {
           userId: ctx.auth.userId,
@@ -83,10 +109,18 @@ export const projectsRouter = createTRPCRouter({
         },
       });
 
+      // ✅ FIXED: Inngest event mein projectId aur projectName add kiya
       await inngest.send({
         name: "code-agent/run",
-        data: { value: input.value },
+        data: {
+          value: input.value,
+          projectId: createdProject.id,
+          projectName: createdProject.name,
+        },
       });
+
+      console.log("Project created successfully:", createdProject.id);
+      console.log("Inngest event sent successfully");
 
       return createdProject;
     }),
