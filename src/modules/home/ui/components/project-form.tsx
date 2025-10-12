@@ -43,6 +43,7 @@ export const ProjectForm = () => {
     trpc.projects.create.mutationOptions({
       onSuccess: (data) => {
         queryClient.invalidateQueries(trpc.projects.getMany.queryOptions());
+        queryClient.invalidateQueries(trpc.usage.status.queryOptions())
         toast.success("Project created successfully! 🎉");
         router.push(`/projects/${data.id}`);
       },
@@ -50,6 +51,9 @@ export const ProjectForm = () => {
         toast.error(error.message || "Failed to create project");
         if (error.data?.code === "UNAUTHORIZED") {
           clerk.openSignIn();
+        }
+        if (error.data?.code==="TOO_MANY_REQUESTS") {
+          router.push("/pricing")
         }
       },
     })

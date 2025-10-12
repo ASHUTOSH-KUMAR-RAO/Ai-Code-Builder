@@ -1,11 +1,13 @@
 import { projectsRouter } from "@/modules/projects/server/procedures";
 import {  createTRPCRouter } from "../init"; // 🚀 tRPC ke basic components import kar rahe hain
 import { messageRouter } from "@/modules/messages/server/procedures";
+import { usageRouter } from "@/modules/usage/server/procedures";
 
 // 🏗️ Main router create kar rahe hain jisme saare API endpoints honge
 export const appRouter = createTRPCRouter({
     messages : messageRouter,
-    projects:projectsRouter
+    projects:projectsRouter,
+    usage:usageRouter
 
   // 📝 Yahan aur endpoints add kar sakte hain:
   // 👥 getUsers: baseProcedure.query(() => { ... }),
