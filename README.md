@@ -1,206 +1,166 @@
-# AI Code Builder 🚀
+# Innovator
 
-An intelligent code generation platform that transforms natural language descriptions into fully functional applications, similar to Lovable. Built with cutting-edge technologies to provide a seamless AI-powered development experience.
+A modern Next.js application built with cutting-edge technologies for building innovative solutions.
 
-## ✨ Features
+## 🚀 Tech Stack
 
-- **AI-Powered Code Generation**: Convert natural language prompts into production-ready code
-- **Real-time Code Execution**: Secure sandbox environment for testing generated code
-- **Modern Tech Stack**: Built with Next.js 14, React 19, and TypeScript
-- **Type-Safe APIs**: End-to-end type safety with tRPC and Prisma
-- **Authentication**: Secure user management with Clerk
-- **Background Processing**: Reliable job processing with Inngest
-- **Responsive UI**: Beautiful, accessible components with Tailwind CSS and shadcn/ui
+- **Framework:** Next.js 15.5.3 with Turbopack
+- **React:** 19.1.0
+- **Language:** TypeScript 5
+- **Database:** Prisma ORM
+- **Authentication:** Clerk
+- **UI Components:** Radix UI + Tailwind CSS
+- **State Management:** TanStack Query (React Query)
+- **API Layer:** tRPC
+- **Background Jobs:** Inngest
+- **Code Execution:** E2B Code Interpreter
+- **Form Handling:** React Hook Form + Zod validation
 
-## 🛠️ Tech Stack
+## 📋 Prerequisites
 
-### Frontend
-- **Next.js 14** - React framework with App Router
-- **React 19** - Latest React with concurrent features
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first styling
-- **shadcn/ui** - High-quality React components
+Before you begin, ensure you have the following installed:
+- Node.js 20.x or higher
+- npm or yarn or pnpm
 
-### Backend
+## 🛠️ Installation
+
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd innovator
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. Set up your environment variables:
+Create a `.env` file in the root directory and add necessary environment variables for:
+- Clerk authentication
+- Prisma database connection
+- Inngest
+- E2B Code Interpreter
+- Other required services
+
+4. Set up the database:
+```bash
+npx prisma generate
+npx prisma db push
+# or for migrations
+npx prisma migrate dev
+```
+
+## 🚦 Available Scripts
+
+- **`npm run dev`** - Starts the development server with Turbopack
+- **`npm run build`** - Creates an optimized production build with Turbopack
+- **`npm start`** - Starts the production server
+- **`npm run lint`** - Runs ESLint to check code quality
+
+## 🏃‍♂️ Getting Started
+
+1. Start the development server:
+```bash
+npm run dev
+```
+
+2. Open your browser and navigate to:
+```
+http://localhost:3000
+```
+
+## 📦 Key Dependencies
+
+### UI & Components
+- **Radix UI** - Unstyled, accessible UI components
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Beautiful & consistent icons
+- **Recharts** - Composable charting library
+- **Sonner** - Toast notifications
+
+### Backend & API
 - **tRPC** - End-to-end typesafe APIs
-- **Tanstack Query** - Powerful data fetching and caching
-- **Prisma ORM** - Type-safe database client
-- **PostgreSQL** - Robust relational database
-- **Neon** - Serverless PostgreSQL platform
-
-### AI & Processing
+- **Prisma** - Next-generation ORM
 - **Inngest** - Background jobs and workflows
-- **E2B** - Secure code execution sandbox
-- **OpenAI/Anthropic** - AI model integration (specify your choice)
+- **E2B Code Interpreter** - Secure code execution
 
-### Infrastructure
-- **Clerk** - Authentication and user management
-- **Docker** - Containerization
-- **Vercel** - Deployment and hosting (optional)
+### Authentication
+- **Clerk** - Complete user management and authentication
 
-## 🚀 Getting Started
+### Form & Validation
+- **React Hook Form** - Performant forms with easy validation
+- **Zod** - TypeScript-first schema validation
 
-### Prerequisites
-
-- Node.js 18+ 
-- Docker
-- PostgreSQL database (or Neon account)
-- Clerk account
-- E2B account
-- Inngest account
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/ai-code-builder.git
-   cd ai-code-builder
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Environment Setup**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Fill in your environment variables:
-   ```env
-   # Database
-   DATABASE_URL="postgresql://..."
-   
-   # Clerk Authentication
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-   CLERK_SECRET_KEY=sk_test_...
-   
-   # E2B Sandbox
-   E2B_API_KEY=e2b_...
-   
-   # Inngest
-   INNGEST_EVENT_KEY=...
-   INNGEST_SIGNING_KEY=...
-   
-   # AI Provider (OpenAI/Anthropic)
-   OPENAI_API_KEY=sk-...
-   # or
-   ANTHROPIC_API_KEY=sk-ant-...
-   ```
-
-4. **Database Setup**
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
-
-5. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) to view the application.
-
-## 📁 Project Structure
+## 🏗️ Project Structure
 
 ```
-ai-code-builder/
+innovator/
 ├── src/
-│   ├── app/                 # Next.js App Router
-│   ├── components/          # React components
-│   │   ├── ui/             # shadcn/ui components
-│   │   └── ...
-│   ├── lib/                # Utility functions
-│   ├── server/             # tRPC server & API routes
-│   ├── hooks/              # Custom React hooks
-│   └── types/              # TypeScript definitions
-├── prisma/                 # Database schema
-├── public/                 # Static assets
-├── docker/                 # Docker configuration
-└── docs/                   # Documentation
+│   ├── app/          # Next.js app directory
+│   ├── components/   # React components
+│   ├── lib/          # Utility functions
+│   ├── server/       # Server-side code (tRPC, Prisma)
+│   └── styles/       # Global styles
+├── prisma/           # Database schema
+├── public/           # Static assets
+└── package.json
 ```
 
-## 🔧 Development
+## 🔒 Environment Variables
 
-### Available Scripts
+Create a `.env` file with the following variables:
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript compiler
-- `npm run db:generate` - Generate Prisma client
-- `npm run db:push` - Push schema to database
-- `npm run db:migrate` - Run database migrations
+```env
+# Database
+DATABASE_URL="your-database-url"
 
-### Docker Development
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your-clerk-publishable-key"
+CLERK_SECRET_KEY="your-clerk-secret-key"
 
-```bash
-# Build and run with Docker Compose
-docker-compose up --build
+# Inngest
+INNGEST_EVENT_KEY="your-inngest-event-key"
+INNGEST_SIGNING_KEY="your-inngest-signing-key"
 
-# Run in detached mode
-docker-compose up -d
+# E2B
+E2B_API_KEY="your-e2b-api-key"
+
+# Add other required environment variables
 ```
 
-## 🧪 Testing
+## 🚀 Deployment
 
-```bash
-# Run tests
-npm run test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run E2E tests
-npm run test:e2e
-```
-
-## 🚢 Deployment
+This project can be deployed on:
 
 ### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Configure environment variables in Vercel dashboard
-4. Deploy automatically on every push
-
-### Docker Production
-
 ```bash
-# Build production image
-docker build -t ai-code-builder .
-
-# Run production container
-docker run -p 3000:3000 ai-code-builder
+npm run build
 ```
+Then deploy to Vercel via their CLI or GitHub integration.
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Other Platforms
+Ensure your platform supports:
+- Node.js 20+
+- PostgreSQL (or your chosen database)
+- Environment variables configuration
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](ISC) file for details.
+This project is private and not available for public use.
 
-## 🙏 Acknowledgments
+## 🤝 Contributing
 
-- [Lovable](https://lovable.dev) for inspiration
-- [Next.js](https://nextjs.org) team for the amazing framework
-- [tRPC](https://trpc.io) for type-safe APIs
-- [Prisma](https://prisma.io) for the excellent ORM
-- [shadcn](https://ui.shadcn.com) for beautiful components
+Contributions, issues, and feature requests are welcome!
 
+## 👨‍💻 Development
+
+Built with ❤️ using Next.js and modern web technologies.
 
 ---
 
-**Built with ❤️ using AI and modern web technologies**
+**Note:** Make sure to configure all environment variables before running the application.
